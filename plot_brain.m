@@ -1,32 +1,38 @@
-
+%% load the brain surface
 fname = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/tutorial_data_20190918_1558/buckner_data/tutorial_subjs/004/surf/rh.pial";
 
 [vertices, faces] = freesurfer_read_surf(fname);
 
-%%
+%% Read gaussian curvatures for each triangle
+
+%load data
 fn = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/GCF.csv";
 T = readtable(fn).Var1;
 colors_GC = T;
 
+%binary coloring of triangles 
 colors_GC(colors_GC<0) = 0;
 colors_GC(colors_GC>0) = 1;
 
-%% 
+%% Read mean curvatures for each triangle
+
 fn1 = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/MCF.csv";
 T1 = readtable(fn1).Var1;
 colors_MC = T1;
 
+%binary coloring of triangles 
 colors_MC(colors_MC<0) = 0;
 colors_MC(colors_MC>0) = 1;
 
-%% Gaussian curvature
+%% Gaussian curvature plots
+
 %angle1
 figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_GC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -49,8 +55,8 @@ figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_GC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -72,8 +78,8 @@ figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_GC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -100,8 +106,8 @@ figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_MC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -123,8 +129,8 @@ figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_MC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -146,8 +152,8 @@ figure;
 h = trisurf(faces,vertices(:,1),vertices(:,2),vertices(:,3))%,'FaceColor','green')
 h.FaceVertexCData = colors_MC;
 colormap spring
-blueAndGreenColormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
-colormap(blueAndGreenColormap) 
+binary_colormap = [repmat([1,0,1], [1,1]) ; repmat([1,1,0], [1,1])]
+colormap(binary_colormap) 
 
 c = colorbar;
 c.Location = 'north';
@@ -167,6 +173,3 @@ zoom(5)
 view([50,0,230])
 set(gcf,'position',[0, 0, 500, 300]); 
 saveas(gcf,'MC_bin_zoom.png')
-
-%%
-A=colormap('spring');

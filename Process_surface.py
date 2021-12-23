@@ -6,7 +6,7 @@ Created on Fri Nov 19 12:41:49 2021
 @author: simonyamazaki
 """
 
-#%%
+#%% load the brain surface
 
 import nibabel as nib
 import numpy as np
@@ -15,10 +15,14 @@ fname = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/tutorial_data_2019
 
 surf = nib.freesurfer.read_geometry(fname)
 
+#points are the vertices
 points = surf[0];
+
+#edges are the points of each triangle
 edges = surf[1];
 
-#%%
+
+#%% compute surface area and volume
 
 
 Total_area = 0
@@ -48,7 +52,7 @@ for ii,p in enumerate(edges):
     T_area = 0.5*np.linalg.norm(v4)
     Total_area += T_area
     
-    #triangular_vertices
+    #reshape the surface data used for a matplotlib library
     tv = np.concatenate((p1.reshape(3,1),p2.reshape(3,1),p3.reshape(3,1)),axis=1).T
     tv = tv.reshape(1,3,3)
     
@@ -67,10 +71,11 @@ tvol = f"The total volumne: {Total_vol}"
 print(tarea)
 print(tvol)
 
+#write the results to a file 
 with open('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/measures.txt', 'a') as f:
     f.writelines([tarea,tvol])
 
-#%% Curvature 
+#%% Compute curvature s
     
 import math 
 
@@ -88,9 +93,6 @@ for ii,p in enumerate(points):
     Tp_idx = edges[T_idx][edges[T_idx]!=ii]
     Tp_idxU = np.unique(Tp_idx)
     Tp_idx2 = Tp_idx.reshape(int(len(Tp_idx)/2),2)
-    
-    #T_points = points[Tp_idx]
-    #T_edges = T_points - p
     
     T_area_sum = 0
     T_angle_sum = 0
@@ -157,11 +159,14 @@ for ii,p in enumerate(points):
     MC_list.append(kappa)
         
 else:
+    #write the curvature at each vertex to a numpy file
     MC2 = np.array(MC_list)
     GC2 = np.array(GC_list)
     np.save("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/GC2.npy",GC2)
     np.save("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/MC2.npy",MC2)
     
+    #the average curvature of each triangle
+    #average of the 3 vertices in each triangle
     MCF = []
     GCF = []
 
@@ -172,18 +177,32 @@ else:
     MCF = np.array(MCF)
     GCF = np.array(GCF)
     
+    #write the average curvature of each triangle to numpy and csv file
     np.save("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/GCF.npy",GCF)
     np.save("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/MCF.npy",MCF)
     
     np.savetxt("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/GCF.csv", GCF, delimiter=",")
     np.savetxt("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/MCF.csv", MCF, delimiter=",")
 
+
+#write the average of positive and negative curvatures to file 
+GC2_pos = GC2[GC2>0].mean()
+GC2_neg = GC2[GC2<0].mean()
+
+MC2_pos = MC2[MC2>0].mean()
+MC2_neg = MC2[MC2<0].mean()
+
+with open('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/measures.txt', 'a') as f:
+    f.writelines([f"GC2_pos: {GC2_pos}",f"GC2_neg: {GC2_neg)}",f"MC2_pos: {MC2_pos}",f"MC2_neg: {MC2_neg)}"])
+
+
+#write the average curvature of all vertices to file
 with open('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/measures.txt', 'a') as f:
     f.writelines([f"Mean GC: {GC2.mean()}",f"Mean MC: {MC2.mean()}"])
 
 
 
-#%% plot the triangulated brain 
+#%% Load the computed measures 
 
 import numpy as np
 from pylab import get_cmap
@@ -191,13 +210,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import nibabel as nib
 
-fname = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/tutorial_data_20190918_1558/buckner_data/tutorial_subjs/004/surf/rh.pial";
-surf = nib.freesurfer.read_geometry(fname,read_metadata=True)
-points = surf[0];
-edges = surf[1];
-
 tv2 = np.load("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/triangle_vertices.npy")
-print("was here")
 
 tv2 = tv2[:10000,:,:]
 
@@ -208,7 +221,7 @@ GCF = np.load("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/GCF.npy")
 MCF = np.load("/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/MCF.npy")
 
 
-#%% Regular surface 
+#%% Regular surface in green
 
 
 fig = plt.figure()
@@ -224,10 +237,10 @@ ax.view_init(elev=20, azim=120)
 
 plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_angle1.png')  
 
-#plt.show()
+plt.show()
 
 
-#%% Regular surface from another angle 
+#%% Regular surface in green from another angle 
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -242,9 +255,9 @@ ax.view_init(elev=20, azim=50)
 
 plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_angle2.png')  
 
-#plt.show()
+plt.show()
 
-#%% zoomed 
+#%%  Regular surface in green magnified
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -265,7 +278,8 @@ plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_zoom.png
 
 
 #%% Colored surface
-
+#not included in report
+"""
 import numpy as np
 from pylab import get_cmap
 import matplotlib.pyplot as plt
@@ -273,7 +287,6 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 cmap = get_cmap('plasma')
 
-#cmap = get_cmap('Spectral')
 
 MCplot = MCF[:tv2.shape[0]]
 face_color_index = MCplot/MCplot.max()
@@ -296,18 +309,17 @@ ax.set_zlim(points[:,2].min(),points[:,2].max())
 
 #plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_colors.png')  
 plt.show()
-
+"""
 
 #%% Colored surface zoom binary, GC
-
+#not included in report
+"""
 import numpy as np
 from pylab import get_cmap
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 cmap = get_cmap('plasma')
-
-#cmap = get_cmap('Spectral')
 
 #binary
 GCplot = GCF[:tv2.shape[0]]
@@ -327,10 +339,12 @@ ax.set_zlim(-15,-5)
 
 #plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_colors.png')  
 plt.show()
-
+"""
 
 #%% Colored surface zoom binary, MC
+#not included in report
 
+"""
 import numpy as np
 from pylab import get_cmap
 import matplotlib.pyplot as plt
@@ -358,149 +372,5 @@ ax.set_zlim(-15,-5)
 
 #plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_colors.png')  
 plt.show()
-
-
-#%%
-"""
-from pylab import get_cmap
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-
-cmap = get_cmap('Spectral')
-
-face_color_index = np.linspace(0, 1, num=edges.shape[0])
-colors = cmap(face_color_index)
-
-ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles = edges )
-ax.set_fc(colors)
-
-plt.show()
-
 """
 
-
-#%% FROM STACK OVERFLOW
-
-
-"""
-# Setup is the same
-
-import itertools
-import matplotlib.pyplot as plt
-from pylab import get_cmap
-from matplotlib.tri import Triangulation, LinearTriInterpolator
-import numpy as np
-from scipy import stats
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-def simplex(n_vals):
-    base = np.linspace(0, 1, n_vals, endpoint=False)
-    coords = np.asarray(list(itertools.product(base, repeat=3)))
-    return coords[np.isclose(coords.sum(axis=-1), 1.0)]
-
-sim = simplex(20)
-pdf = stats.dirichlet([1.1, 1.5, 1.3]).pdf(sim.T)
-
-# For shorter notation we define x, y and z:
-
-x = sim[:, 0]
-y = sim[:, 1]
-z = sim[:, 2]
-
-# Creating a triangulation object and using it to extract the actual triangles. 
-# Note if it is necessary that no patch will be vertical (i.e. along the z direction)
-
-tri = Triangulation(x, y)
-
-triangle_vertices = np.array([np.array([[x[T[0]], y[T[0]], z[T[0]]],
-                                        [x[T[1]], y[T[1]], z[T[1]]], 
-                                        [x[T[2]], y[T[2]], z[T[2]]]]) for T in tri.triangles])
-
-# Finding coordinate for the midpoints of each triangle. 
-# This will be used to extract the color
-
-midpoints = np.average(triangle_vertices, axis = 1)
-midx = midpoints[:, 0]
-midy = midpoints[:, 1]
-
-# Interpolating the pdf and using it with the selected cmap to produce the color RGB vector for each face. 
-# Some roundoff and normalization are needed
-
-face_color_function = LinearTriInterpolator(tri, pdf)
-face_color_index = face_color_function(midx, midy)
-face_color_index[face_color_index < 0] = 0
-face_color_index /= np.max(pdf)
-
-cmap = get_cmap('Spectral')
-
-# Creating the patches and plotting
-
-face_color_index = face_color_index._data
-face_color_index = np.linspace(0,1,len(face_color_index))
-
-collection = Poly3DCollection(triangle_vertices, facecolors=cmap(face_color_index))
-
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.add_collection(collection)
-plt.show()
-
-"""
-
-
-#%% Colored surface zoom
-"""
-import numpy as np
-from pylab import get_cmap
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-cmap = get_cmap('plasma')
-
-#cmap = get_cmap('Spectral')
-
-MCplot = MCF[:tv2.shape[0]]
-face_color_index = MCplot/MCplot.max()
-
-GCplot = GCF[:tv2.shape[0]]
-maxC = np.array([abs(GCplot.min()), abs(GCplot.max())]).max()
-GCplot = GCplot+maxC
-
-face_color_index = GCplot/GCplot.max()
-
-face_color_index = np.log(face_color_index)
-maxC = np.array([abs(face_color_index.min()), abs(face_color_index.max())]).max()
-face_color_index = face_color_index+maxC
-
-
-collection = Poly3DCollection(tv2, facecolors=cmap(face_color_index))
-
-print("was here1")
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.add_collection(collection)
-print("was here2")
-
-#ax.color_bar(face_color_index)
-
-ax.set_xlim(0,10)
-ax.set_ylim(-55,-45)
-ax.set_zlim(-35,-25)
-
-"""
-ax.set_xlim(20,30)
-ax.set_ylim(-85,-75)
-ax.set_zlim(-15,-5)
-"""
-
-print("was here3")
-
-#plt.savefig('/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/brain_colors.png')  
-plt.show()
-
-"""
