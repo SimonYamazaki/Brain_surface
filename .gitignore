@@ -7,7 +7,7 @@
 *.npy
 *.csv
 *.txt
-
+*.DS_store
 
 # OSX / *nix default autosave extension
 *.m~
