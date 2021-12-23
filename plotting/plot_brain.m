@@ -1,3 +1,6 @@
+%%Add path of data loading script
+addpath('/Users/simonyamazaki/Documents/1_M/diff_geo1/Brain_surface/utils')
+
 %% load the brain surface
 fname = "/Users/simonyamazaki/Documents/1_M/diff_geo1/Project/tutorial_data_20190918_1558/buckner_data/tutorial_subjs/004/surf/rh.pial";
 
